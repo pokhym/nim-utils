@@ -9,7 +9,16 @@ proc test1() =
 proc test2() =
   ## Add a graph node
   echo "Running test2..."
-  return
+  let udg: Graph[int] = newGraph[int](false)
+  let dg: Graph[int] = newGraph[int](true)
+
+  assert udg.insertNode(0, 1) == true
+  assert dg.insertNode(0, 1) == true
+
+  echo "Printing udg..."
+  echo $udg
+  echo "Printing dg..."
+  echo $dg
 
 when isMainModule:
   test1()
