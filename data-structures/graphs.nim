@@ -29,10 +29,10 @@ type UndirectedGraphNode[T] = ref object of GraphNode[T]
 
 proc `$`*[T](self: UndirectedGraphNode[T]): string =
   ## Print UndirectedGraphNode
-  result = "FROM:" & self.id & "-TO->"
-  for i in self.targets:
-    result &= i.id &","
-  result &= "\n\t" & $self.data & "\n"
+  result = "ID:" & $self.nodeID & ",Data:" & $self.data & "\n"
+  result &= "\tFROM:" & $self.nodeID & "<-TO->"
+  for i in self.targets.items:
+    result &= $i.nodeID & ","
   
 #[
   DirectedGraphNode
@@ -46,15 +46,15 @@ type DirectedGraphNode[T] = ref object of GraphNode[T]
 
 proc `$`*[T](self: DirectedGraphNode[T]): string =
   ## Print DirectedGraphNode
-  result = "FROM:"
-  for i in self.incoming:
-    result &= i.id & ","
-  result &= "-TO->" & self.id
-  result &= "FROM:" & self.id & "-TO->"
-  for i in self.outgoing:
-    result &= i.id &","
+  result = "ID:" & $self.nodeID & ",Data:" & $self.data & "\n"
+  result &= "\tFROM:"
+  for i in self.incoming.items:
+    result &= $i.nodeID & ","
+  result &= "-TO->" & $self.nodeID & "\n"
+  result &= "\tFROM:" & $self.nodeID & "-TO->"
+  for i in self.outgoing.items:
+    result &= $i.nodeID & ","
   result &= "\n"
-  result &= "\n\t" & $self.data & "\n"
 
 #[
   Graph
@@ -74,7 +74,10 @@ proc `$`*[T](self: Graph[T]): string =
   else:
     result &= "UNDIRECTED\n"
   for n in self.nodes.items:
-    echo n[]
+    if n of UndirectedGraphNode[T]:
+      result &= $cast[UndirectedGraphNode[T]](n)
+    elif n of DirectedGraphNode[T]:
+      result &= $cast[DirectedGraphNode[T]](n)
 
 #[
   UndirectedGraph
@@ -84,6 +87,20 @@ type UndirectedGraph[T] = ref object of Graph
 proc newGraph*[T](directed: bool): Graph[T] =
   ## Creates a new Graph
   return Graph[T](directed: directed)
+
+proc nodeInGraph*[T](self: Graph[T], nodeID: int): bool =
+  ## Checks if nodeID is in the graph already
+  ##
+  ## Parameters
+  ##  * nodeID: int: nodeID to check
+  ##
+  ## Returns
+  ##  * true: If already contained in graph
+  ##  * false: Otherwise
+  for n in self.nodes.items:
+    if n.nodeID == nodeID:
+      return true
+  return false
 
 proc addEdgeUndirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   ## TODO:
@@ -177,7 +194,6 @@ proc deleteEdge*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   return false
 
 proc insertNode*[T](self: Graph[T], nodeID: int, data: T): bool = 
-  ## TODO:
   ## Inserts a node into the graph
   ## 
   ## Parameters
@@ -186,6 +202,8 @@ proc insertNode*[T](self: Graph[T], nodeID: int, data: T): bool =
   ## Returns
   ##  * true: If successful
   ##  * false: Otherwise
+  if self.nodeInGraph(nodeID):
+    return false
   if self.directed:
     var n = new(DirectedGraphNode[T])
     n.nodeID = nodeID
