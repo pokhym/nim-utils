@@ -49,7 +49,7 @@ proc initCSVHandler*(self: CSVHandler, path: string, sep: char) =
     echo "[loadCSV]: File at " & path & " does not exist!"
     return
 
-  echo "[loadCSV]: Opening '" & expandFilename(path) & "'"
+  # echo "[loadCSV]: Opening '" & expandFilename(path) & "'"
   let entireFile = readFile(expandFilename(path))
 
   # Init members
@@ -75,3 +75,39 @@ proc initCSVHandler*(self: CSVHandler, path: string, sep: char) =
           currentEntryName = col
         else:
           self.contents[currentEntryName].add(col)
+
+proc getEntry*(self: CSVHandler, key: string): seq[string] =
+  ## Gets a specific row of the CSV given a key
+  ## 
+  ## Parameters
+  ##  * key: string: The key for the row to extract (first column)
+  ##
+  ## Returns
+  ##  * seq[string]: The contents of the row
+  ##  * Raises KeyError exception if failed
+  return self.contents[key]
+
+proc insertEntry*(self: CSVHandler, entry: seq[string]): bool =
+  ## Inserts an entry into the CSVHandler
+  ## The entry must contain the same number of elements as
+  ## the columns.
+  ## 
+  ## Parameters
+  ##  * entry: seq[string]: Entry to add
+  ## 
+  ## Returns
+  ##  * true: On success
+  ##  * false: On failure
+  if entry.len != len(self.columns):
+    return false
+
+  var foundKey: bool = false
+  var keyName: string = ""
+  for col in entry:
+    if foundKey == false:
+      self.contents[col] = @[]
+      foundKey = true
+      keyName = col
+    else:
+      self.contents[keyName].add(col)
+  return true
