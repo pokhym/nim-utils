@@ -30,7 +30,7 @@ type DirectedGraphNode[T] = ref object of GraphNode
 #[
   Graph
 ]#
-type Graph[T] = ref object of RootObj
+type Graph*[T] = ref object of RootObj
   ## A Graph with nodes
   nodes: HashSet[GraphNode[T]]
 
@@ -38,6 +38,10 @@ type Graph[T] = ref object of RootObj
   UndirectedGraph
 ]#
 type UndirectedGraph[T] = ref object of Graph
+
+proc newGraph*[T](): Graph[T] =
+  ## Creates a new Graph
+  return Graph[T]()
 
 proc addEdgeUndirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   ## TODO:
