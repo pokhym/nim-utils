@@ -126,6 +126,7 @@ proc addEdgeDirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int
   ## Returns
   ##  * true: If successful
   ##  * false: Otherwise
+  return false
 
 proc addEdge*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   ## Adds an edge between two nodes
@@ -138,6 +139,9 @@ proc addEdge*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   ##  * true: If successful
   ##  * false: Otherwise
   if self.nodes.len == 0:
+    return false
+
+  if not self.nodeInGraph(nodeIDSource) or not self.nodeInGraph(nodeIDDest):
     return false
 
   if not self.directed:
@@ -184,6 +188,9 @@ proc deleteEdge*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   ##  * true: If successful
   ##  * false: Otherwise
   if self.nodes.len == 0:
+    return false
+
+  if not self.nodeInGraph(nodeIDSource) or not self.nodeInGraph(nodeIDDest):
     return false
   
   if not self.directed:
@@ -255,6 +262,9 @@ proc deleteNode*[T](self: Graph[T], nodeID: int): bool =
   if self.nodes.len == 0:
    return false
 
+  if not self.nodeInGraph(nodeID):
+    return false
+
   if not self.directed:
     return self.deleteNodeUndirectedGraph(nodeID)
   else:
@@ -284,6 +294,12 @@ proc bfsSearch*[T](self: Graph[T], source: GraphNode[T], target: GraphNode[T]): 
   ## Returns
   ##  * nil: If no path exists
   ##  * seq[GraphNode[T]]: Path
+  if self.nodes.len == 0:
+    return nil
+
+  if not self.nodeInGraph(source.nodeID) or not self.nodeInGraph(target.nodeID):
+    return nil
+
   if source of UndirectedGraph[T] and target of UndirectedGraphNode[T]:
     return self.bfsSearchUndirected(source, target)
   elif source of DirectedGraphNode[T] and target of DirectedGraphNode[T]:
