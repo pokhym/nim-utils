@@ -17,9 +17,14 @@ type CSVHandler* = ref object
   ## and the column number
 
 proc newCSVHandler*(): CSVHandler =
+  ## Creates a new CSVHandler object
+  ## 
+  ## Returns
+  ## * CSVHandler
   return new(CSVHandler)
 
 proc `$`*(self: CSVHandler): string =
+  ## Pretty print the contents
   result = ""
   result &= "Column names:\n"
   for k in self.columns.keys:
@@ -32,6 +37,12 @@ proc `$`*(self: CSVHandler): string =
 
 
 proc initCSVHandler*(self: CSVHandler, path: string, sep: char) = 
+  ## Initializes a CSVHandler by reading the file
+  ## 
+  ## Parametes
+  ##  * self: CSVHandler
+  ##  * path: string: Path to the file
+  ##  * sep: Separator in the CSV (usually comma)
   try:
     discard expandFilename(path)
   except:

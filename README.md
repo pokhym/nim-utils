@@ -7,5 +7,7 @@ Mainly coding practice in Nim.
 
 * `data-structrues`: Various data structures coded in nim
   * `trees.nim`
-    * `BinaryTree`: :Balanced unsorted binary tree implementation
+    * `BinaryTree`: Balanced unsorted binary tree implementation
+* `csv`: CSV Utilities
+  * `csv.nim`: CSVHandler implementation for reading/modifying and saving CSVs.
 * `tests`: Tests for the various utilities
