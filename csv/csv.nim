@@ -40,7 +40,6 @@ proc initCSVHandler*(self: CSVHandler, path: string, sep: char) =
   ## Initializes a CSVHandler by reading the file
   ## 
   ## Parametes
-  ##  * self: CSVHandler
   ##  * path: string: Path to the file
   ##  * sep: Separator in the CSV (usually comma)
   try:
@@ -110,4 +109,21 @@ proc insertEntry*(self: CSVHandler, entry: seq[string]): bool =
       keyName = col
     else:
       self.contents[keyName].add(col)
+  return true
+
+proc deleteEntry*(self: CSVHandler, key: string): bool =
+  ## Deletes an entry from the CSVHandler
+  ## Only does anything if the key exists in CSVHandler's
+  ## contents
+  ## 
+  ## Parameters
+  ##  * key: string: Key for the row to delete
+  ## 
+  ## Returns
+  ##  * true: If successful
+  ##  * false: Otherwise
+  if not self.contents.contains(key):
+    return false
+  
+  self.contents.del(key)
   return true

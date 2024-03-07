@@ -1,5 +1,4 @@
 import ../csv/csv
-import system/exceptions
 
 proc test1() =
   ## Test read whole file
@@ -33,8 +32,28 @@ proc test4() =
   assert csvh.insertEntry(@["qwe789", "q", "e", "789"]) == true
   assert csvh.getEntry("qwe789") == @["q", "e", "789"]
 
+proc test5() =
+  ## Delete non-existent key
+  echo "Running test5..."
+  let csvh: CSVHandler = newCSVHandler()
+  csvh.initCSVHandler("test_csv.csv", ',')
+  assert csvh.deleteEntry("asdf") == false
+  echo $csvh
+
+proc test6() =
+  ## Delete existing key
+  echo "Running test6..."
+  let csvh: CSVHandler = newCSVHandler()
+  csvh.initCSVHandler("test_csv.csv", ',')
+  assert csvh.insertEntry(@["qwe789", "q", "e", "789"]) == true
+  assert csvh.deleteEntry("qwe789") == true
+  assert csvh.deleteEntry("abc123") == true
+  echo $csvh
+
 when isMainModule:
   test1()
   test2()
   test3()
   test4()
+  test5()
+  test6()

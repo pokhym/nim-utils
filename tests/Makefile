@@ -8,4 +8,4 @@ test_csv: test_csv.nim
 	nim --out=../bin/test_csv c --verbosity:1 test_csv.nim
 
 clean:
-	rm $(OBJS)
+	rm ../bin/$(OBJS)
