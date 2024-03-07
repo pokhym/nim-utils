@@ -33,15 +33,18 @@ type DirectedGraphNode[T] = ref object of GraphNode
 type Graph*[T] = ref object of RootObj
   ## A Graph with nodes
   nodes: HashSet[GraphNode[T]]
+  ## Nodes
+  directed: bool
+  ## True if directed false otherwise
 
 #[
   UndirectedGraph
 ]#
 type UndirectedGraph[T] = ref object of Graph
 
-proc newGraph*[T](): Graph[T] =
+proc newGraph*[T](directed: bool): Graph[T] =
   ## Creates a new Graph
-  return Graph[T]()
+  return Graph[T](directed: directed)
 
 proc addEdgeUndirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   ## TODO:
@@ -81,11 +84,10 @@ proc addEdge*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   if self.nodes.len == 0:
     return false
 
-  for n in self.nodes.items:
-    if n of UndirectedGraphNode:
-      return self.addEdgeUndirectedGraph(nodeIDSource, nodeIDDest)
-    elif n of DirectedGraphNode:
-      return self.addEdgeDirectedGraph(nodeIDSource, nodeIDDest)
+  if not self.directed:
+    return self.addEdgeUndirectedGraph(nodeIDSource, nodeIDDest)
+  else:
+    return self.addEdgeDirectedGraph(nodeIDSource, nodeIDDest)
   
   return false
 
@@ -128,11 +130,10 @@ proc deleteEdge*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   if self.nodes.len == 0:
     return false
   
-  for n in self.nodes.items:
-    if n of UndirectedGraphNode:
-      return self.deleteEdgeUndirectedGraph(nodeIDSource, nodeIDDest)
-    elif n of DirectedGraphNode:
-      return self.deleteEdgeDirectedGraph(nodeIDSource, nodeIDDest)
+  if not self.directed:
+    return self.deleteEdgeUndirectedGraph(nodeIDSource, nodeIDDest)
+  else:
+    return self.deleteEdgeDirectedGraph(nodeIDSource, nodeIDDest)
   
   return false
 
@@ -185,11 +186,10 @@ proc deleteNode*[T](self: Graph[T], nodeID: int): bool =
   if self.nodes.len == 0:
    return false
 
-  for n in self.nodes.items:
-    if n of UndirectedGraphNode:
-      return self.deleteNodeUndirectedGraph(nodeID)
-    elif n of DirectedGraphNode:
-      return self.deleteNodeDirectedGraph(nodeID)
+  if not self.directed:
+    return self.deleteNodeUndirectedGraph(nodeID)
+  else:
+    return self.deleteNodeDirectedGraph(nodeID)
   return false
 
 proc bfsSearchUndirected[T](self: Graph[T], source: UndirectedGraphNode[T], target: UndirectedGraphNode[T]): seq[UndirectedGraphNode[T]] =
