@@ -50,6 +50,14 @@ proc test6() =
   assert csvh.deleteEntry("abc123") == true
   echo $csvh
 
+proc test7() =
+  ## Test output
+  echo "Running test7..."
+  let csvh: CSVHandler = newCSVHandler()
+  csvh.initCSVHandler("test_csv.csv", ',')
+  csvh.saveCSV("test_csv_out.csv", ':')
+  
+
 when isMainModule:
   test1()
   test2()
@@ -57,3 +65,4 @@ when isMainModule:
   test4()
   test5()
   test6()
+  test7()

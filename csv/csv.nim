@@ -12,7 +12,7 @@ type CSVHandler* = ref object
   ## Contains a mapping between the entries
   ## and a sequence of columns for each entry
   
-  columns*: Table[string, int]
+  columns*: OrderedTable[string, int]
   ## Contains a mapping between a column name
   ## and the column number
 
@@ -52,8 +52,8 @@ proc initCSVHandler*(self: CSVHandler, path: string, sep: char) =
   let entireFile = readFile(expandFilename(path))
 
   # Init members
-  self.contents = initTable[string, seq[string]]()
-  self.columns = initTable[string, int]()
+  # self.contents = initTable[string, seq[string]]()
+  # self.columns = initTable[string, int]()
 
   var handledFirstLine: bool = false
   for l in entireFile.split("\n"):
@@ -74,6 +74,44 @@ proc initCSVHandler*(self: CSVHandler, path: string, sep: char) =
           currentEntryName = col
         else:
           self.contents[currentEntryName].add(col)
+
+proc saveCSV*(self: CSVHandler, path: string, sep: char) =
+  ## Writes out the current contents of CSVHandler
+  ## to the given path with the given separator.
+  ## Does nothing on an empty CSVHandler. Requires
+  ## full path to location (expandFilename doesn't work?)
+  ## 
+  ## Parameters
+  ##  * path: string: Path to the destination locatoin
+  ##  * sep: char: Separator to use
+  if len(self.columns) == 0:
+    return
+
+  let f = open(path, fmWrite)
+  defer: f.close()
+
+  # Output the column names first
+  var outStr: string = ""
+  var count: int = 0
+  for c in self.columns.keys:
+    outStr &= c
+    count += 1
+    if count < len(self.columns):
+      outStr &= sep
+  outStr &= "\n"
+  # Output entries
+  for k in self.contents.keys:
+    var count: int = 1
+    outStr &= k & sep
+    for c in self.contents[k]:
+      outStr &= c
+      count += 1
+      if count < len(self.columns):
+        outStr &= sep
+    outStr &= "\n"
+  
+  # Write out
+  f.write(outStr)
 
 proc getEntry*(self: CSVHandler, key: string): seq[string] =
   ## Gets a specific row of the CSV given a key
