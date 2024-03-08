@@ -20,7 +20,7 @@ Mainly coding practice in Nim.
 
 #### BinaryTree
 
-Balanced unsoreted binary tree.
+Balanced unsorted binary tree.
 
 Supports
 
