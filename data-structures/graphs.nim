@@ -33,6 +33,7 @@ proc `$`*[T](self: UndirectedGraphNode[T]): string =
   result &= "\tFROM:" & $self.nodeID & "<-TO->"
   for i in self.targets.items:
     result &= $i.nodeID & ","
+  result &= "\n"
   
 #[
   DirectedGraphNode
@@ -47,11 +48,11 @@ type DirectedGraphNode[T] = ref object of GraphNode[T]
 proc `$`*[T](self: DirectedGraphNode[T]): string =
   ## Print DirectedGraphNode
   result = "ID:" & $self.nodeID & ",Data:" & $self.data & "\n"
-  result &= "\tFROM:"
+  result &= "\tFROM(IN ):"
   for i in self.incoming.items:
     result &= $i.nodeID & ","
   result &= "-TO->" & $self.nodeID & "\n"
-  result &= "\tFROM:" & $self.nodeID & "-TO->"
+  result &= "\tFROM(OUT):" & $self.nodeID & "-TO->"
   for i in self.outgoing.items:
     result &= $i.nodeID & ","
   result &= "\n"
@@ -102,8 +103,21 @@ proc nodeInGraph*[T](self: Graph[T], nodeID: int): bool =
       return true
   return false
 
+proc findNodeByID*[T](self:Graph[T], nodeID: int): GraphNode[T] =
+  ## Finds a node and returns if it exists in the graph
+  ## 
+  ## Parameters
+  ##  * nodeID: int: Node ID
+  ## 
+  ## Returns
+  ##  * GraphNode[T]: If it exists
+  ##  * nil: Otherwise
+  for n in self.nodes.items:
+    if n.nodeID == nodeID:
+      return n
+  return nil
+
 proc addEdgeUndirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
-  ## TODO:
   ## Adds an edge between two nodes
   ## 
   ## Parameters
@@ -113,10 +127,25 @@ proc addEdgeUndirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: i
   ## Returns
   ##  * true: If successful
   ##  * false: Otherwise
+  var ns_ref: UndirectedGraphNode[T] = nil
+  var nd_ref: UndirectedGraphNode[T] = nil
+  block loops:
+    for ns in self.nodes.items:
+      if ns.nodeID == nodeIDSource:
+        ns_ref = UndirectedGraphNode[T](ns)
+        for nd in self.nodes.items:
+          if nd.nodeID == nodeIDDest:
+            nd_ref = UndirectedGraphNode[T](nd)
+            break loops
+  # Need to do it this dumbass way otherwise it will complain about some
+  # function call depth problem
+  if ns_ref != nil and nd_ref != nil:
+    ns_ref.targets.incl(nd_ref)
+    nd_ref.targets.incl(ns_ref)
+    return true
   return false
 
 proc addEdgeDirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
-  ## TODO:
   ## Adds an edge between two nodes
   ## 
   ## Parameters
@@ -126,6 +155,23 @@ proc addEdgeDirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int
   ## Returns
   ##  * true: If successful
   ##  * false: Otherwise
+  var ns_ref: DirectedGraphNode[T] = nil
+  var nd_ref: DirectedGraphNode[T] = nil
+  block loops:
+    for ns in self.nodes.items:
+      if ns.nodeID == nodeIDSource:
+        ns_ref = DirectedGraphNode[T](ns)
+        for nd in self.nodes.items:
+          if nd.nodeID == nodeIDDest:
+            nd_ref = DirectedGraphNode[T](nd)
+            break loops
+
+  # Need to do it this dumbass way otherwise it will complain about some
+  # function call depth problem
+  if ns_ref != nil and nd_ref != nil:
+    ns_ref.outgoing.incl(nd_ref)
+    nd_ref.incoming.incl(ns_ref)
+    return true
   return false
 
 proc addEdge*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =

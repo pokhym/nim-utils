@@ -7,7 +7,7 @@ test_trees: test_trees.nim
 test_csv: test_csv.nim
 	nim --out=../bin/test_csv c --verbosity:1 test_csv.nim
 test_graph: test_graph.nim
-	nim --out=../bin/test_graph c --verbosity:1 test_graph.nim
+	nim --out=../bin/test_graph c --verbosity:1 --debugger:native test_graph.nim
 
 clean:
 	rm ../bin/$(OBJS)
