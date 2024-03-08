@@ -43,7 +43,7 @@ Supports
 
 TODO:
 
-* BFS shortest path
+* Dijkstra shortest path
 
 ## CSV
 
