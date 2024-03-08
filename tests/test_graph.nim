@@ -118,6 +118,62 @@ proc test7() =
   echo "Printing dg..."
   echo $dg
 
+proc test8() =
+  ## Delete non-existing node from graph
+  echo "Running test8..."
+  let udg: Graph[int] = newGraph[int](false)
+  let dg: Graph[int] = newGraph[int](true)
+
+  # assert udg.insertNode(0, 1) == true
+
+  assert udg.deleteNode(0) == false
+  assert dg.deleteNode(0) == false
+
+proc test9() =
+  ## Delete an existing node from graph with no edges
+  echo "Running test9..."
+  let udg: Graph[int] = newGraph[int](false)
+  let dg: Graph[int] = newGraph[int](true)
+
+  assert udg.insertNode(0, 1) == true
+  assert dg.insertNode(0, 1) == true
+
+  assert udg.deleteNode(0) == true
+  assert dg.deleteNode(0) == true
+  
+  echo "Printing udg..."
+  echo $udg
+  echo "Printing dg..."
+  echo $dg
+
+proc test10() = 
+  ## Delete existing node from graph with edges
+  echo "Running test10..."
+  let udg: Graph[int] = newGraph[int](false)
+  let dg: Graph[int] = newGraph[int](true)
+
+  assert udg.insertNode(0, 1) == true
+  assert udg.insertNode(1, 2) == true
+  assert dg.insertNode(0, 1) == true
+  assert dg.insertNode(1, 2) == true
+
+  assert udg.addEdge(0, 1) == true
+  assert udg.addEdge(0, 1) == true
+  assert udg.addEdge(0, 0) == true
+  assert udg.addEdge(0, 0) == true
+  assert dg.addEdge(0, 1) == true
+  assert dg.addEdge(1, 0) == true
+  assert dg.addEdge(0, 0) == true
+  assert dg.addEdge(0, 0) == true
+
+  assert udg.deleteNode(0) == true
+  assert dg.deleteNode(0) == true
+
+  echo "Printing udg..."
+  echo $udg
+  echo "Printing dg..."
+  echo $dg
+
 when isMainModule:
   test1()
   test2()
@@ -126,3 +182,6 @@ when isMainModule:
   test5()
   test6()
   test7()
+  test8()
+  test9()
+  test10()

@@ -17,8 +17,7 @@ proc hash*[T](self: GraphNode[T]): Hash {.noSideEffect.} =
 
 proc `==`*[T](a, b: GraphNode[T]): bool =
   ## `==`: Required for HashSet to work
-  return a == b
-
+  return a.nodeID == b.nodeID
 #[
   UndirectedGraphNode
 ]#
@@ -303,7 +302,6 @@ proc insertNode*[T](self: Graph[T], nodeID: int, data: T): bool =
   return false
 
 proc deleteNodeUndirectedGraph*[T](self: Graph[T], nodeID: int): bool =
-  ## TODO:
   ## Deletes a node from the graph
   ## 
   ## Parameters
@@ -311,11 +309,22 @@ proc deleteNodeUndirectedGraph*[T](self: Graph[T], nodeID: int): bool =
   ## 
   ## Returns
   ##  * true: If successful
-  ##  * false: Otherwise
+  ##  * false: Otherwise  
+  for n in self.nodes.items:
+    var n_ref: UndirectedGraphNode[T] = UndirectedGraphNode[T](n)
+    if n_ref.nodeID != nodeID:
+      for nn in n_ref.targets.items:
+        if nn.nodeID == nodeID:
+          n_ref.targets.excl(nn)
+          break
+
+  for n in self.nodes.items:
+    if n.nodeID == nodeID:
+      self.nodes.excl(n)
+      return true
   return false
 
 proc deleteNodeDirectedGraph*[T](self: Graph[T], nodeID: int): bool =
-  ## TODO:
   ## Deletes a node from the graph
   ## 
   ## Parameters
@@ -324,10 +333,25 @@ proc deleteNodeDirectedGraph*[T](self: Graph[T], nodeID: int): bool =
   ## Returns
   ##  * true: If successful
   ##  * false: Otherwise
+  for n in self.nodes.items:
+    var n_ref: DirectedGraphNode[T] = DirectedGraphNode[T](n)
+    if n_ref.nodeID != nodeID:
+      for nn in n_ref.incoming.items:
+        if nn.nodeID == nodeID:
+          n_ref.incoming.excl(nn)
+          break
+      for nn in n_ref.outgoing.items:
+        if nn.nodeID == nodeID:
+          n_ref.outgoing.excl(nn)
+          break
+
+  for n in self.nodes.items:
+    if n.nodeID == nodeID:
+      self.nodes.excl(n)
+      return true
   return false
 
 proc deleteNode*[T](self: Graph[T], nodeID: int): bool =
-  ## TODO:
   ## Deletes a node from the graph
   ## 
   ## Parameters
