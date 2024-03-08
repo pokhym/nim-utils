@@ -197,8 +197,7 @@ proc addEdge*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   
   return false
 
-proc deleteEdgeUndirectedGraph*[T](nodeIDSource: int, nodeIDDest: int): bool =
-  ## TODO:
+proc deleteEdgeUndirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
   ## Deletes an edge between two nodes
   ## 
   ## Parameters
@@ -208,10 +207,26 @@ proc deleteEdgeUndirectedGraph*[T](nodeIDSource: int, nodeIDDest: int): bool =
   ## Returns
   ##  * true: If successful
   ##  * false: Otherwise
+  var ns_ref: UndirectedGraphNode[T] = nil
+  var nd_ref: UndirectedGraphNode[T] = nil
+  
+  for n in self.nodes.items:
+    if n.nodeID == nodeIDSource:
+      ns_ref = UndirectedGraphNode[T](n)
+    if n.nodeID == nodeIDDest:
+      nd_ref = UndirectedGraphNode[T](n)
+    if nd_ref != nil and ns_ref != nil:
+      break
+  
+  # Both were found and they contain each other in edges
+  if nd_ref != nil and ns_ref != nil and ns_ref.targets.contains(nd_ref) and nd_ref.targets.contains(ns_ref):
+    ns_ref.targets.excl(nd_ref)
+    nd_ref.targets.excl(ns_ref)
+    return true
+
   return false
 
 proc deleteEdgeDirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
-  ## TODO:
   ## Deletes an edge between two nodes
   ##
   ## Parameters
@@ -221,6 +236,22 @@ proc deleteEdgeDirectedGraph*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: 
   ## Returns
   ##  * true: If successful
   ##  * false: Otherwise
+  var ns_ref: DirectedGraphNode[T] = nil
+  var nd_ref: DirectedGraphNode[T] = nil
+  
+  for n in self.nodes.items:
+    if n.nodeID == nodeIDSource:
+      ns_ref = DirectedGraphNode[T](n)
+    if n.nodeID == nodeIDDest:
+      nd_ref = DirectedGraphNode[T](n)
+    if nd_ref != nil and ns_ref != nil:
+      break
+  
+  # Both were found and they contain each other in edges
+  if nd_ref != nil and ns_ref != nil and ns_ref.outgoing.contains(nd_ref) and nd_ref.incoming.contains(ns_ref):
+    ns_ref.outgoing.excl(nd_ref)
+    nd_ref.incoming.excl(ns_ref)
+    return true
   return false
 
 proc deleteEdge*[T](self: Graph[T], nodeIDSource: int, nodeIDDest: int): bool =
