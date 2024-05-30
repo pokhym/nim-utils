@@ -85,14 +85,32 @@ proc wrapXRootWindowOfScreen*(screen : ptr Screen): X11Rv[Window] =
   var res: Window = XRootWindowOfScreen(screen)
   return X11Rv[Window](success: false, message: "[wrapXRootWindowOfScreen]: Successfully got Window", data: res)
 
-proc enumWindows*(display: ptr Display, window: Window, depth: int) =
+proc wrapXFetchName*(display: ptr Display, window: Window): X11Rv[string] =
   var csr: cstring
-  var s : Status = XFetchName(display, window, addr(csr))
+  let s : Status = XFetchName(display, window, addr(csr))
 
-  for i in 0..depth - 1:
-    discard printf("\t")
+  # Status returned from X11 functions fail on 0
+  # https://tronche.com/gui/x/xlib/introduction/errors.html
+  if cast[cint](s) != 0:
+    return X11Rv[string](success: true, message: "[wrapXFetchName]: Success", data: $csr)
+  return X11Rv[string](success: false, message: "[wrapXFetchName]: Fail", data: "")
 
-  discard printf("id=0x%x, XFetchName=\"%s\", \n", window, csr);
+proc enumWindows*(resWindows: var seq[Window], display: ptr Display, window: Window, depth: int) =
+  var csr: cstring
+  # var s : Status = XFetchName(display, window, addr(csr))
+
+  # # Status returned from X11 functions fail on 0
+  # # https://tronche.com/gui/x/xlib/introduction/errors.html
+  # if cast[cint](s) != 0:
+  let s: X11Rv[string] = wrapXFetchName(display, window)
+  if s.success:
+    resWindows.add(window)
+
+  #   for i in 0..depth - 1:
+  #     discard printf("\t")
+
+  #   # discard printf("id=0x%x, XFetchName=\"%s\", status=%d\n", window, csr, cast[cint](s));
+  # discard printf("id=0x%x, XFetchName=\"%s\", status=%d\n", window, cstring(s.data), s.success);
 
   var root, parent : Window
   var children: ptr Window
@@ -101,5 +119,19 @@ proc enumWindows*(display: ptr Display, window: Window, depth: int) =
   discard XQueryTree(display, window, addr(root), addr(parent), cast[ptr ptr Window](addr(children)), addr(n));
   if children != nil:
     for i in 0..n-1:
-      enumWindows(display, cast[ptr UncheckedArray[Window]](children)[i], depth + 1)
+      enumWindows(resWindows, display, cast[ptr UncheckedArray[Window]](children)[i], depth + 1)
 
+proc getWindowByName*(display: ptr Display, name: string): X11Rv[Window] =
+  assert display != nil
+
+  var ws: seq[Window] = @[]
+  var sX11Rv: X11Rv[ptr Screen] = wrapXDefaultScreenOfDisplay(display)
+  var wX11Rv: X11Rv[Window] = wrapXRootWindowOfScreen(sX11Rv.data)
+
+  enumWindows(ws, display, wX11Rv.data, 0)
+
+  for w in ws:
+    let res: X11Rv[string] = wrapXFetchName(display, w)
+    if res.success and res.data == name:
+      return X11Rv[Window](success: false, message: "[getWindowByName]: Unable to find by name", data: w)
+  return X11Rv[Window](success: false, message: "[getWindowByName]: Unable to find by name")
