@@ -96,6 +96,7 @@ proc wrapXFetchName*(display: ptr Display, window: Window): X11Rv[string] =
   return X11Rv[string](success: false, message: "[wrapXFetchName]: Fail", data: "")
 
 proc enumWindows*(resWindows: var seq[Window], display: ptr Display, window: Window, depth: int) =
+  ## FIXME: This doesn't seem to enumerate everything?
   var csr: cstring
   # var s : Status = XFetchName(display, window, addr(csr))
 
