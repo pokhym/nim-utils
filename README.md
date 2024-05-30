@@ -59,3 +59,13 @@ Supports
 TODO:
 
 * Add columns
+
+## x11
+
+X11 wrappers for C equivalent C functions.
+Automation of actions.
+
+Requires
+* `sudo apt-get install libx11-dev`
+
+Compilation requires the flag `--passL:"-lX11"`
