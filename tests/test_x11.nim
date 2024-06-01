@@ -18,7 +18,11 @@ proc testFindWindowName() =
   var wX11Rv: X11Rv[Window] = wrapXRootWindowOfScreen(sX11Rv.data)
 
   var r: X11Rv[Window] = getWindowByName(dX11Rv.data, "asdf")
-  echo wrapXFetchName(dX11Rv.data, r.data)
+  # var r: X11Rv[Window] = getWindowByName(dX11Rv.data, "Zoom Workplace")
+  if r.success:
+    echo wrapXFetchName(dX11Rv.data, r.data)
+  else:
+    echo r
 
 when isMainModule:
   # testEnumerateWindows()
